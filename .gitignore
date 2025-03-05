@@ -171,3 +171,4 @@ cython_debug/
 *.docx
 *.zip
 *.env
+data/*
