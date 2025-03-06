@@ -57,6 +57,8 @@ def members_route():
 
         for member in data:
             univ_id = member[1]["university"]
+            if not univ_id:
+                continue
             member[1]["university"] = univ_dict[univ_id]["name"]
 
         return data
