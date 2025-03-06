@@ -36,7 +36,12 @@ def universities_route():
         return ""
 
     def delete_university():
-        pass
+        data = request.get_json()
+
+        id = data["univ_id"]
+        D.Database().drop(id, University)
+
+        return ""
 
     method_dict = {
         "get": get_universities,
@@ -59,7 +64,11 @@ def members_route():
             univ_id = member[1]["university"]
             if not univ_id:
                 continue
-            member[1]["university"] = univ_dict[univ_id]["name"]
+
+            if univ_id in univ_dict:
+                member[1]["university"] = univ_dict[univ_id]["name"]
+            else:
+                member[1]["university"] = ""
 
         return data
 

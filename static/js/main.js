@@ -6,6 +6,12 @@ const alertBox = Swal.mixin({
   preConfirm: () => {
     const form = document.getElementById("swal-form");
     if (form == undefined) return undefined;
+
+    if (!form.checkValidity()) {
+      Swal.showValidationMessage("Please fill in all fields correctly!");
+      return false;
+    }
+
     const formData = new FormData(form);
 
     return Object.fromEntries(formData);
@@ -88,7 +94,7 @@ const update_faculties = async () => {
       <td class="col-md"><a class="btn-sm btn-info" href="${
         member[1]["link"]
       }" target="_blank">Link</a></td>
-      <td class="col-md-3">
+      <td class="col-md-2">
         <div class="btn-group btn-group-sm" role="group">
           <button
             type="button"
@@ -112,13 +118,58 @@ const update_faculties = async () => {
   tbody.innerHTML = rows.join("");
 };
 
+const update_universities = async () => {
+  const res = await http.get("univ");
+
+  const univ_list = await res.json();
+
+  const parent = document.getElementById("universities");
+  const tbody = parent.getElementsByTagName("tbody")[0];
+
+  const rows = [];
+
+  if (univ_list.length == 0) {
+    tbody.innerHTML = `
+    <tr>
+      <th colspan="3">
+        <h5 align="center" class="m-2">No Data Found</h5>
+      </th>
+    </tr>
+    `;
+    return;
+  }
+
+  for (const univ of univ_list) {
+    const univ_id = univ[0];
+
+    rows.push(`
+    <tr id="${univ_id}">
+      <th scope="row" class="col-md-1">${rows.length + 1}</th>
+      <td class="col-md">${univ[1]["name"]}</td>
+      <td class="col-md-1">
+        <div class="btn-group btn-group-sm" role="group">
+          <button
+            type="button"
+            class="btn btn-danger btn-upload"
+            onclick="remove_university(this,'${univ_id}')"
+          >
+            Remove
+          </button>
+        </div>
+      </td>
+    </tr>`);
+  }
+
+  tbody.innerHTML = rows.join("");
+};
+
 const add_university = button_manager(async (resolve) => {
   return alertBox
     .fire({
       title: "Add New University",
       html: `
     <form id="swal-form">
-      <input name="name" class="form-control mb-3" placeholder="Name">
+      <input name="name" class="form-control mb-3" placeholder="Name" required>
       </select>
     </form>
   `,
@@ -129,6 +180,7 @@ const add_university = button_manager(async (resolve) => {
       if (result.isConfirmed) {
         const data = result.value;
         await http.post("univ", data);
+        update_universities();
       }
       resolve();
     });
@@ -151,12 +203,12 @@ const add_faculty = button_manager(async (resolve) => {
       title: "Add New Faculty",
       html: `
     <form id="swal-form">
-      <input name="name" class="form-control mb-3" placeholder="Name">
-      <select name="university" class="form-select mb-3">
+      <input name="name" class="form-control mb-3" placeholder="Name" required>
+      <select name="university" class="form-select mb-3" required>
           ${options.join("")}
       </select>
-      <input name="interest" class="form-control mb-3" placeholder="Interests">
-      <input name="link" class="form-control mb-3" placeholder="Link">
+      <input name="interest" class="form-control mb-3" placeholder="Interests" required>
+      <input name="link" class="form-control mb-3" placeholder="Link" required>
     </form>
   `,
       focusConfirm: false,
@@ -189,6 +241,25 @@ const remove_member = button_manager(async (resolve, member_id) => {
     });
 });
 
+const remove_university = button_manager(async (resolve, univ_id) => {
+  return alertBox
+    .fire({
+      title: "Do you want to delete this university?",
+      showCancelButton: true,
+    })
+    .then(async (result) => {
+      if (result.isConfirmed) {
+        await http.delete("univ", {
+          univ_id,
+        });
+        update_universities();
+        update_faculties();
+      }
+      resolve();
+    });
+});
+
 window.addEventListener("load", () => {
   update_faculties();
+  update_universities();
 });
