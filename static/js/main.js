@@ -62,92 +62,79 @@ const button_manager = (fn) => {
 };
 
 const update_faculties = async () => {
+  const table = window.faculties;
+
+  table.clear();
+
   const res = await http.get("members");
 
   const member_list = await res.json();
 
-  const parent = document.getElementById("faculties");
-  const tbody = parent.getElementsByTagName("tbody")[0];
-
-  const rows = [];
-
   if (member_list.length == 0) {
-    tbody.innerHTML = `
-    <tr>
-      <th colspan="6">
-        <h5 align="center" class="m-2">No Data Found</h5>
-      </th>
-    </tr>
-    `;
+    table.draw();
     return;
   }
+
+  let i = 1;
 
   for (const member of member_list) {
     const member_id = member[0];
 
-    rows.push(`
-    <tr id="${member_id}">
-      <th scope="row" class="col-md-1">${rows.length + 1}</th>
-      <td class="col-md">${member[1]["name"]}</td>
-      <td class="col-md">${member[1]["university"]}</td>
-      <td class="col-md">${member[1]["interest"]}</td>
-      <td class="col-md"><a class="btn-sm btn-info" href="${
-        member[1]["link"]
-      }" target="_blank">Link</a></td>
-      <td class="col-md-2">
-        <div class="btn-group btn-group-sm" role="group">
-          <button
-            type="button"
-            class="btn btn-danger btn-upload"
-            onclick="remove_member(this,'${member_id}')"
-          >
-            Remove
-          </button>
-          <button
-            type="button"
-            class="btn btn-warning btn-email"
-            onclick="send_email(this,'${member_id}')"
-          >
-            Send Email
-          </button>
-        </div>
-      </td>
-    </tr>`);
+    table.rows.add([
+      [
+        i,
+        member[1]["name"],
+        member[1]["university"],
+        member[1]["interest"],
+        `<a class="btn-sm btn-info" href="${member[1]["link"]}" target="_blank">Link</a>`,
+        `<div class="btn-group btn-group-sm" role="group">
+      <button
+        type="button"
+        class="btn btn-danger btn-upload"
+        onclick="remove_member(this,'${member_id}')"
+      >
+        Remove
+      </button>
+      <button
+        type="button"
+        class="btn btn-warning btn-email"
+        onclick="send_email(this,'${member_id}')"
+      >
+        Send Email
+      </button>`,
+      ],
+    ]);
+
+    i++;
   }
 
-  tbody.innerHTML = rows.join("");
+  table.draw();
 };
 
 const update_universities = async () => {
+  const table = window.universities;
+
+  table.clear();
+
   const res = await http.get("univ");
 
   const univ_list = await res.json();
 
-  const parent = document.getElementById("universities");
-  const tbody = parent.getElementsByTagName("tbody")[0];
-
-  const rows = [];
-
   if (univ_list.length == 0) {
-    tbody.innerHTML = `
-    <tr>
-      <th colspan="3">
-        <h5 align="center" class="m-2">No Data Found</h5>
-      </th>
-    </tr>
-    `;
+    table.draw();
     return;
   }
+
+  let i = 1;
 
   for (const univ of univ_list) {
     const univ_id = univ[0];
 
-    rows.push(`
-    <tr id="${univ_id}">
-      <th scope="row" class="col-md-1">${rows.length + 1}</th>
-      <td class="col-md">${univ[1]["name"]}</td>
-      <td class="col-md-1">
-        <div class="btn-group btn-group-sm" role="group">
+    table.rows.add([
+      [
+        i,
+        univ[1]["name"],
+        `<div class="btn-group btn-group-sm" role="group">
           <button
             type="button"
             class="btn btn-danger btn-upload"
@@ -155,12 +142,14 @@ const update_universities = async () => {
           >
             Remove
           </button>
-        </div>
-      </td>
-    </tr>`);
+        </div>`,
+      ],
+    ]);
+
+    i++;
   }
 
-  tbody.innerHTML = rows.join("");
+  table.draw();
 };
 
 const add_university = button_manager(async (resolve) => {
@@ -260,6 +249,30 @@ const remove_university = button_manager(async (resolve, univ_id) => {
 });
 
 window.addEventListener("load", () => {
+  window.faculties = new DataTable("#faculties", {
+    columnDefs: [
+      {
+        targets: "_all",
+        type: "string",
+      },
+      {
+        orderable: false,
+        targets: [-1, -2],
+      },
+    ],
+  });
+  window.universities = new DataTable("#universities", {
+    columnDefs: [
+      {
+        targets: "_all",
+        type: "string",
+      },
+      {
+        orderable: false,
+        targets: [-1],
+      },
+    ],
+  });
   update_faculties();
   update_universities();
 });
