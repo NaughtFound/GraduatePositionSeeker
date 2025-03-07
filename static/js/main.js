@@ -442,6 +442,7 @@ window.addEventListener("load", () => {
       },
       {
         orderable: false,
+        searchable: false,
         targets: [-1, -2],
       },
     ],
@@ -454,6 +455,7 @@ window.addEventListener("load", () => {
       },
       {
         orderable: false,
+        searchable: false,
         targets: [-1],
       },
     ],
@@ -488,6 +490,7 @@ window.addEventListener("load", () => {
       },
       {
         orderable: false,
+        searchable: false,
         targets: [-1, -2],
       },
     ],
