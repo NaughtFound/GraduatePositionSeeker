@@ -1,4 +1,5 @@
 const alertBox = Swal.mixin({
+  theme: "dark",
   customClass: {
     confirmButton: "btn btn-success",
     cancelButton: "btn btn-danger",
