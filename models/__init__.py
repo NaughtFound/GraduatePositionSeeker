@@ -25,3 +25,16 @@ class Member(DictModel):
         self.email = ""
         self.interests = ""
         self.link = ""
+
+
+class Position(DictModel):
+    title: str
+    deadline: str
+    link: str
+
+    def __init__(self):
+        super().__init__()
+
+        self.title = ""
+        self.deadline = ""
+        self.link = ""

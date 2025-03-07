@@ -46,6 +46,19 @@
               Universities
             </button>
           </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              data-bs-toggle="tab"
+              data-bs-target="#positions-tab"
+              type="button"
+              role="tab"
+              aria-controls="positions-tab"
+              aria-selected="false"
+            >
+              Open Positions
+            </button>
+          </li>
         </ul>
         <div class="btn-group">
           <button
@@ -59,6 +72,12 @@
             onclick="add_university(this)"
           >
             Add University
+          </button>
+          <button
+            class="btn btn-danger my-2 my-sm-0"
+            onclick="add_position(this)"
+          >
+            Add Position
           </button>
         </div>
       </div>
@@ -104,12 +123,30 @@
                 <tbody></tbody>
               </table>
             </div>
+            <div class="tab-pane fade" id="positions-tab" role="tabpanel">
+              <table
+                class="table table-striped table-hover align-middle"
+                id="positions"
+              >
+                <thead>
+                  <tr>
+                    <th scope="col" class="col-md-1">#</th>
+                    <th scope="col" class="col-md">Title</th>
+                    <th scope="col" class="col-md">Deadline</th>
+                    <th scope="col" class="col-md-1">Link</th>
+                    <th scope="col" class="col-md-1">Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <script src="../static/js/jquery.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/moment.min.js"></script>
     <script src="../static/js/fontawesome.js"></script>
     <script src="../static/js/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

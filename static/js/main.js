@@ -131,7 +131,7 @@ const update_faculties = async () => {
           <button
             type="button"
             class="btn btn-danger btn-upload"
-            onclick="remove_member(this,'${member_id}')"
+            onclick="remove_faculty(this,'${member_id}')"
           >
             Remove
           </button>
@@ -192,6 +192,71 @@ const update_universities = async () => {
 
   table.draw();
 };
+
+const update_positions = async () => {
+  const table = window.positions;
+
+  table.clear();
+
+  const res = await http.get("pos");
+
+  const pos_list = await res.json();
+
+  if (pos_list.length == 0) {
+    table.draw();
+    return;
+  }
+
+  let i = 1;
+
+  for (const pos of pos_list) {
+    const pos_id = pos[0];
+
+    table.rows.add([
+      [
+        i,
+        pos[1]["title"],
+        pos[1]["deadline"],
+        `<a class="btn-sm btn-info" href="${pos[1]["link"]}" target="_blank">Link</a>`,
+        `<div class="btn-group btn-group-sm" role="group">
+          <button
+            type="button"
+            class="btn btn-danger btn-upload"
+            onclick="remove_position(this,'${pos_id}')"
+          >
+            Remove
+          </button>
+        </div>`,
+      ],
+    ]);
+
+    i++;
+  }
+
+  table.draw();
+};
+
+const add_position = button_manager(async (resolve) => {
+  return alertBox
+    .fire({
+      title: "Add New Position",
+      html: create_html_form("swal-form", [
+        { type: "text", name: "title", placeholder: "Title" },
+        { type: "text", name: "deadline", placeholder: "Main deadline" },
+        { type: "text", name: "link", placeholder: "Link" },
+      ]),
+      focusConfirm: false,
+      showCancelButton: true,
+    })
+    .then(async (result) => {
+      if (result.isConfirmed) {
+        const data = result.value;
+        await http.post("pos", data);
+        update_positions();
+      }
+      resolve();
+    });
+});
 
 const add_university = button_manager(async (resolve) => {
   return alertBox
@@ -269,7 +334,7 @@ const add_faculty = button_manager(async (resolve) => {
     });
 });
 
-const remove_member = button_manager(async (resolve, member_id) => {
+const remove_faculty = button_manager(async (resolve, member_id) => {
   return alertBox
     .fire({
       title: "Do you want to delete this member?",
@@ -304,11 +369,28 @@ const remove_university = button_manager(async (resolve, univ_id) => {
     });
 });
 
+const remove_position = button_manager(async (resolve, pos_id) => {
+  return alertBox
+    .fire({
+      title: "Do you want to delete this position?",
+      showCancelButton: true,
+    })
+    .then(async (result) => {
+      if (result.isConfirmed) {
+        await http.delete("pos", {
+          pos_id,
+        });
+        update_positions();
+      }
+      resolve();
+    });
+});
+
 window.addEventListener("load", () => {
   window.faculties = new DataTable("#faculties", {
     columnDefs: [
       {
-        targets: "_all",
+        targets: [1, 2, 3, 4, 5],
         type: "string",
       },
       {
@@ -320,7 +402,7 @@ window.addEventListener("load", () => {
   window.universities = new DataTable("#universities", {
     columnDefs: [
       {
-        targets: "_all",
+        targets: [1, 2],
         type: "string",
       },
       {
@@ -329,6 +411,25 @@ window.addEventListener("load", () => {
       },
     ],
   });
+  window.positions = new DataTable("#positions", {
+    columnDefs: [
+      {
+        targets: [1, 3, 4],
+        type: "string",
+      },
+      {
+        targets: 2,
+        render: function (data) {
+          return moment(data).format("YYYY MMM DD");
+        },
+      },
+      {
+        orderable: false,
+        targets: [-1, -2],
+      },
+    ],
+  });
   update_faculties();
   update_universities();
+  update_positions();
 });

@@ -5,7 +5,7 @@ from uuid import uuid4
 # import utils.google_api as G
 import utils.database as D
 from utils.decorators import error_decorator
-from models import Member, University
+from models import Member, University, Position
 from utils.env import Env
 
 app = Flask(__name__)
@@ -94,6 +94,41 @@ def members_route():
         "get": get_members,
         "post": add_member,
         "delete": delete_member,
+    }
+
+    return method_dict[request.method.lower()]()
+
+
+@app.route("/pos", methods=["GET", "POST", "DELETE"])
+@error_decorator()
+def positions_route():
+    def get_positions():
+        data = D.Database().get_all(Position)
+
+        return data
+
+    def add_position():
+        data = request.get_json()
+
+        id = str(uuid4())
+        position = Position().parse(data)
+
+        D.Database().save(id, position)
+
+        return ""
+
+    def delete_position():
+        data = request.get_json()
+
+        id = data["pos_id"]
+        D.Database().drop(id, Position)
+
+        return ""
+
+    method_dict = {
+        "get": get_positions,
+        "post": add_position,
+        "delete": delete_position,
     }
 
     return method_dict[request.method.lower()]()
