@@ -419,8 +419,24 @@ window.addEventListener("load", () => {
       },
       {
         targets: 2,
-        render: function (data) {
-          return moment(data).format("YYYY MMM DD");
+        render: function (data, type, row) {
+          const date = moment(data);
+          const now = moment();
+
+          // Format the date for display
+          const formattedDate = date.format("YYYY MMM DD");
+
+          // Check if date is in future
+          const isBefore = date.isBefore(now);
+
+          // Return formatted date with class if future
+          if (isBefore && type === "display") {
+            return `<span class="text-danger">${formattedDate}</span>`;
+          }
+
+          if (type == "display") return formattedDate;
+
+          return date.unix() - now.unix();
         },
       },
       {
