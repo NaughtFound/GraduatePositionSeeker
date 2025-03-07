@@ -51,7 +51,7 @@ const create_html_form = (id, fields) => {
   const rows = [];
 
   for (const field of fields) {
-    const { type, name, placeholder } = field;
+    const { type, name, placeholder, required = true } = field;
 
     switch (type) {
       case "email":
@@ -62,7 +62,7 @@ const create_html_form = (id, fields) => {
             name="${name}"
             class="form-control mb-3"
             placeholder="${placeholder}"
-            required
+            ${required ? "required" : ""}
           >`
         );
         break;
@@ -72,10 +72,26 @@ const create_html_form = (id, fields) => {
           options.push(`<option value="${option.id}">${option.name}</option>`);
         }
         rows.push(
-          `<select name="${name}" class="form-select mb-3" required>
+          `<select 
+            name="${name}"
+            class="form-select mb-3"
+             ${required ? "required" : ""}
+          >
             <option value="" disabled selected>${placeholder}</option>
             ${options.join("")}
           </select>`
+        );
+        break;
+      case "textarea":
+        const { num_rows } = field;
+        rows.push(
+          `<textarea 
+            name="${name}"
+            rows="${num_rows}"
+            class="form-control mb-3"
+            placeholder="${placeholder}"
+            ${required ? "required" : ""}
+          ></textarea>`
         );
         break;
       default:
@@ -221,6 +237,13 @@ const update_positions = async () => {
         `<div class="btn-group btn-group-sm" role="group">
           <button
             type="button"
+            class="btn btn-secondary btn-upload"
+            onclick="show_desc(this,'${pos_id}')"
+          >
+            Description
+          </button>
+          <button
+            type="button"
             class="btn btn-danger btn-upload"
             onclick="remove_position(this,'${pos_id}')"
           >
@@ -244,6 +267,13 @@ const add_position = button_manager(async (resolve) => {
         { type: "text", name: "title", placeholder: "Title" },
         { type: "text", name: "deadline", placeholder: "Main deadline" },
         { type: "text", name: "link", placeholder: "Link" },
+        {
+          type: "textarea",
+          name: "desc",
+          placeholder: "Description",
+          num_rows: 10,
+          required: false,
+        },
       ]),
       focusConfirm: false,
       showCancelButton: true,
@@ -382,6 +412,23 @@ const remove_position = button_manager(async (resolve, pos_id) => {
         });
         update_positions();
       }
+      resolve();
+    });
+});
+
+const show_desc = button_manager(async (resolve, pos_id) => {
+  const res = await http.get(`pos?pos_id=${pos_id}`);
+
+  const pos = await res.json();
+
+  const converter = new showdown.Converter();
+  const html = converter.makeHtml(pos.desc);
+
+  return alertBox
+    .fire({
+      html,
+    })
+    .then(() => {
       resolve();
     });
 });

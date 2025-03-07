@@ -103,6 +103,12 @@ def members_route():
 @error_decorator()
 def positions_route():
     def get_positions():
+        pos_id = request.args.get("pos_id")
+
+        if pos_id:
+            pos = D.Database().get_all(Position, False).get(pos_id)
+            return pos
+
         data = D.Database().get_all(Position)
 
         return data

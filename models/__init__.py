@@ -31,6 +31,7 @@ class Position(DictModel):
     title: str
     deadline: str
     link: str
+    desc: str
 
     def __init__(self):
         super().__init__()
@@ -38,3 +39,4 @@ class Position(DictModel):
         self.title = ""
         self.deadline = ""
         self.link = ""
+        self.desc = ""
