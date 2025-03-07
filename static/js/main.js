@@ -47,6 +47,45 @@ const http = {
     }),
 };
 
+const create_html_form = (id, fields) => {
+  const rows = [];
+
+  for (const field of fields) {
+    const { type, name, placeholder } = field;
+
+    switch (type) {
+      case "email":
+      case "text":
+        rows.push(
+          `<input 
+            type="${type}"
+            name="${name}"
+            class="form-control mb-3"
+            placeholder="${placeholder}"
+            required
+          >`
+        );
+        break;
+      case "select":
+        const options = [];
+        for (const option of field.options) {
+          options.push(`<option value="${option.id}">${option.name}</option>`);
+        }
+        rows.push(
+          `<select name="${name}" class="form-select mb-3" required>
+            <option value="" disabled selected>${placeholder}</option>
+            ${options.join("")}
+          </select>`
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  return `<form id="${id}">${rows.join("")}</form>`;
+};
+
 const button_manager = (fn) => {
   return async (me, ...args) => {
     const name = me.innerHTML;
@@ -89,20 +128,21 @@ const update_faculties = async () => {
         member[1]["interest"],
         `<a class="btn-sm btn-info" href="${member[1]["link"]}" target="_blank">Link</a>`,
         `<div class="btn-group btn-group-sm" role="group">
-      <button
-        type="button"
-        class="btn btn-danger btn-upload"
-        onclick="remove_member(this,'${member_id}')"
-      >
-        Remove
-      </button>
-      <button
-        type="button"
-        class="btn btn-warning btn-email"
-        onclick="send_email(this,'${member_id}')"
-      >
-        Send Email
-      </button>`,
+          <button
+            type="button"
+            class="btn btn-danger btn-upload"
+            onclick="remove_member(this,'${member_id}')"
+          >
+            Remove
+          </button>
+          <button
+            type="button"
+            class="btn btn-warning btn-email"
+            onclick="send_email(this,'${member_id}')"
+          >
+            Send Email
+          </button>
+        </div>`,
       ],
     ]);
 
@@ -157,12 +197,9 @@ const add_university = button_manager(async (resolve) => {
   return alertBox
     .fire({
       title: "Add New University",
-      html: `
-    <form id="swal-form">
-      <input name="name" class="form-control mb-3" placeholder="Name" required>
-      </select>
-    </form>
-  `,
+      html: create_html_form("swal-form", [
+        { type: "text", name: "name", placeholder: "Name of the university" },
+      ]),
       focusConfirm: false,
       showCancelButton: true,
     })
@@ -185,22 +222,40 @@ const add_faculty = button_manager(async (resolve) => {
   for (const univ of univ_list) {
     const id = univ[0];
     const data = univ[1];
-    options.push(`<option value="${id}">${data.name}</option>`);
+    options.push({ id, name: data.name });
   }
 
   return alertBox
     .fire({
       title: "Add New Faculty",
-      html: `
-    <form id="swal-form">
-      <input name="name" class="form-control mb-3" placeholder="Name" required>
-      <select name="university" class="form-select mb-3" required>
-          ${options.join("")}
-      </select>
-      <input name="interest" class="form-control mb-3" placeholder="Interests" required>
-      <input name="link" class="form-control mb-3" placeholder="Link" required>
-    </form>
-  `,
+      html: create_html_form("swal-form", [
+        {
+          type: "text",
+          name: "name",
+          placeholder: "Name of the faculty member",
+        },
+        {
+          type: "select",
+          name: "university",
+          placeholder: "Select University",
+          options,
+        },
+        {
+          type: "email",
+          name: "email",
+          placeholder: "Email of the faculty member",
+        },
+        {
+          type: "text",
+          name: "interests",
+          placeholder: "Interests",
+        },
+        {
+          type: "text",
+          name: "link",
+          placeholder: "Link",
+        },
+      ]),
       focusConfirm: false,
       showCancelButton: true,
     })

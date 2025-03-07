@@ -13,7 +13,8 @@ class University(DictModel):
 class Member(DictModel):
     name: str
     university: str
-    interest: str
+    email: str
+    interests: str
     link: str
 
     def __init__(self):
@@ -21,5 +22,6 @@ class Member(DictModel):
 
         self.name = ""
         self.university = ""
-        self.interest = ""
+        self.email = ""
+        self.interests = ""
         self.link = ""
