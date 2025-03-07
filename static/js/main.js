@@ -125,7 +125,7 @@ const update_faculties = async () => {
         i,
         member[1]["name"],
         member[1]["university"],
-        member[1]["interest"],
+        member[1]["interests"],
         `<a class="btn-sm btn-info" href="${member[1]["link"]}" target="_blank">Link</a>`,
         `<div class="btn-group btn-group-sm" role="group">
           <button
